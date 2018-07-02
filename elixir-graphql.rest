@@ -1,0 +1,179 @@
+/////////////////////////////////////////////////////////////////
+/// Queries
+/////////////////////////////////////////////////////////////////
+
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+
+POST /
+{
+  "query":"{ menuItems { name } }"
+}
+
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+
+POST /
+{
+  "query": "
+    query($term: String!) {
+      search(matching: $term) {
+        name
+        __typename
+        ... on MenuItem { description price }
+        ... on Category { id }
+      }
+    }",
+  "variables": { "term": "e" }
+}
+
+
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+
+/////////////////////////////////////////////////////////////////
+/// Mutations
+/////////////////////////////////////////////////////////////////
+
+// Login and get token
+POST /
+{
+  "query": "mutation($email: String!, $pswd: String!) {
+              login(email: $email, password: $pswd, role: EMPLOYEE) {
+                token
+                user {
+                  email
+                  name
+                }
+              }
+            }",
+  "variables": {
+    "email": "zdenko@email.com",
+    "pswd": "abcd"
+  }
+}
+
+// Don't forget add correct authorization token in this section
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+authorization: Bearer SFMyNTY.g3QAAAACZAAEZGF0YXQAAAACZAACaWRhAWQABHJvbGVkAAhlbXBsb3llZWQABnNpZ25lZG4GANS8hVpkAQ.P4CS7RGrID1YNbdk6vNvwKKiXMTI0dqSQMED-przphM
+
+POST /
+{
+  "query":"{
+    me {
+      name
+      __typename
+      ... on Customer {
+        orders {id}
+      }
+      ... on Employee {
+        email
+      }
+    }
+  }"
+}
+
+
+// Be sure menuItemId is exists in DB (eg. by running seeds with Ecto).
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+authorization: Bearer SFMyNTY.g3QAAAACZAAEZGF0YXQAAAACZAACaWRhAWQABHJvbGVkAAhlbXBsb3llZWQABnNpZ25lZG4GANS8hVpkAQ.P4CS7RGrID1YNbdk6vNvwKKiXMTI0dqSQMED-przphM
+
+POST /
+{
+  "query":"mutation($input: PlaceOrderInput!) {
+            placeOrder(input: $input) {
+              errors { key message }
+              order {
+                id
+                customerNumber
+                state
+                items {
+                  name
+                  quantity
+                }
+              }
+            }
+          }",
+  "variables": {
+    "input": {
+      "customerNumber": 4,
+      "items": [
+        {
+          "menuItemId": 4,
+          "quantity": 1
+        },
+        {
+          "menuItemId": 8,
+          "quantity": 2
+        }
+      ]
+    }
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////
+/// Subscriptions
+/////////////////////////////////////////////////////////////////
+
+// In one tab/query (eg. on `http://localhost:4000/graphiql`) run subscription
+subscription {
+  updateOrder(id: 4) {
+    state
+    id
+  }
+}
+
+// In other tab run sub with mutiation
+mutation {
+  completeOrder(id: 4) {
+    errors { key message },
+    order {
+      id
+      state
+    }
+  }
+}
+
+// By rest client it can be
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+authorization: Bearer SFMyNTY.g3QAAAACZAAEZGF0YXQAAAACZAACaWRhAWQABHJvbGVkAAhlbXBsb3llZWQABnNpZ25lZG4GANS8hVpkAQ.P4CS7RGrID1YNbdk6vNvwKKiXMTI0dqSQMED-przphM
+
+POST /
+{
+  "query": "mutation($id: ID!) {
+            completeOrder(id: $id) {
+              errors { key message },
+              order {
+                id
+                state
+              }
+            }
+          }",
+  "variables": {
+    "id": 4
+  }
+}
+
+http://localhost:4000/api
+Content-Type: application/json; charset=utf-8
+authorization: Bearer SFMyNTY.g3QAAAACZAAEZGF0YXQAAAACZAACaWRhAWQABHJvbGVkAAhlbXBsb3llZWQABnNpZ25lZG4GANS8hVpkAQ.P4CS7RGrID1YNbdk6vNvwKKiXMTI0dqSQMED-przphM
+
+POST /
+{
+  "query": "mutation($id: ID!) {
+            readyOrder(id: $id) {
+              errors { key message },
+              order {
+                id
+                state
+              }
+            }
+          }",
+  "variables": {
+    "id": 4
+  }
+}

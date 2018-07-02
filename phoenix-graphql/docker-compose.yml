@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  db:
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "test-api-actix"
+      POSTGRES_PASSWORD: "abcd"
+    image: postgres:9.6-alpine
+    ports:
+      - "5432:5432"
