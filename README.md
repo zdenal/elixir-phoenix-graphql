@@ -19,6 +19,7 @@ $> mix phx.server
 
 Then you can visit `graphiql` interface for palaying with API and schema on `http://localhost:4000/graphiql`.
 
+![alt graphiql UI](https://github.com/zdenal/elixir-phoenix-graphql/blob/master/GraphiQL_Workspace.png)
 
 Some of the REST queries are also prepared in `elixir-graphql.rest` file.
 
